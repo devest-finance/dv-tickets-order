@@ -1,8 +1,8 @@
 const AccountHelper = require("./helpers/Helper");
 
 const ERC20 = artifacts.require("ERC20PresetFixedSupply");
-const DvStakeToken = artifacts.require("DvStakeToken");
-const DvStakeTokenFactory = artifacts.require("DvStakeTokenFactory");
+const DvTicketsOrder = artifacts.require("DvTicketsOrder");
+const DvTicketsOrderFactory = artifacts.require("DvTicketsOrderFactory");
 
 var exampleModelAddress = null;
 
@@ -15,11 +15,11 @@ contract('Sell Orders', (accounts) => {
 
     before(async () => {
         erc20Token = await ERC20.deployed();
-        stakeTokenFactory = await DvStakeTokenFactory.deployed();
+        stakeTokenFactory = await DvTicketsOrderFactory.deployed();
 
         // fetch devest
         const devestDAOAddress = await stakeTokenFactory.getRecipient.call();
-        modelOneDeVestDAO = await DvStakeToken.at(devestDAOAddress);
+        modelOneDeVestDAO = await DvTicketsOrder.at(devestDAOAddress);
 
         await AccountHelper.setupAccountFunds(accounts, erc20Token, 40000000000);
         modelOneInstance = await AccountHelper.createTangible(stakeTokenFactory, erc20Token.address,
@@ -80,7 +80,7 @@ contract('Sell Orders', (accounts) => {
 });
 const createBid = async (percent, price, address) => {
     const erc20Token = await ERC20.deployed();
-    const devestOne = await DvStakeToken.at(exampleModelAddress);
+    const devestOne = await DvTicketsOrder.at(exampleModelAddress);
 
     // submit bid
     let escrow = price * percent;

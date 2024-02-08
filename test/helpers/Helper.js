@@ -1,6 +1,6 @@
 const ERC20 = artifacts.require("ERC20PresetFixedSupply");
-const DvStakeToken = artifacts.require("DvStakeToken");
-const DvStakeTokenFactory = artifacts.require("DvStakeTokenFactory");
+const DvTicketsOrder = artifacts.require("DvTicketsOrder");
+const DvTicketsOrderFactory = artifacts.require("DvTicketsOrderFactory");
 
 class Helper {
 
@@ -19,27 +19,30 @@ class Helper {
         assert.equal(accountOneEndingBalance, 680000000000, "Failed to transfer funds");
     }
 
-    static async createTangible(factory, tokenAddress, name, short, value, tax, decimal, sender){
+    static async createTangible(factory, tokenAddress, name, short, value, tax, totalSupply, sender){
         const exampleOneContract = await factory.issue(tokenAddress, name, short, { value: 100000000 });
 
-        const modelOneInstance = await DvStakeToken.at(exampleOneContract.logs[0].args[1]);
+        const modelOneInstance = await DvTicketsOrder.at(exampleOneContract.logs[0].args[1]);
         const symbol = await modelOneInstance.symbol.call();
 
-        assert.equal(symbol, "% EXP", "Failed to issue Example Contract");
+        assert.equal(symbol, "EXP", "Failed to issue Example Contract");
 
         // check if variables set
         const _name = await modelOneInstance.name.call();
         assert(_name, "Example", "Invalid name on TST");
 
-        await modelOneInstance.initialize(tax, decimal, { from: sender });
+        if(totalSupply == 0)
+            totalSupply = 100;
+
+        await modelOneInstance.initialize(tax, totalSupply, { from: sender });
 
         return modelOneInstance;
     }
 
-    static async createTangiblePresale(factory, tokenAddress, name, short, value, tax, decimal, price, sender){
+    static async createTangiblePresale(factory, tokenAddress, name, short, value, tax, totalSupply, price, sender){
         const exampleOneContract = await factory.issue(tokenAddress, name, short, { value: 100000000 });
 
-        const modelOneInstance = await DvStakeToken.at(exampleOneContract.logs[0].args[1]);
+        const modelOneInstance = await DvTicketsOrder.at(exampleOneContract.logs[0].args[1]);
         const symbol = await modelOneInstance.symbol.call();
 
         assert.equal(symbol, "% EXP", "Failed to issue Example Contract");
@@ -52,7 +55,7 @@ class Helper {
         start.setHours(start.getHours() - 10);
         const end = new Date(start);
         end.setHours(start.getHours() + 20);
-        await modelOneInstance.initializePresale(tax, decimal, price, parseInt(start.getTime() / 1000), parseInt(end.getTime() / 1000), { from: sender });
+        await modelOneInstance.initializePresale(tax, totalSupply, price, parseInt(start.getTime() / 1000), parseInt(end.getTime() / 1000), { from: sender });
 
         return modelOneInstance;
     }
